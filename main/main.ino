@@ -17,8 +17,8 @@
 #define BUZZER        12
 #define VBAT          A7
 
-float K1 = 600;
-float K2 = 130;
+float K1 = 180;
+float K2 = 60;
 float K3 = 0.01;
 
 float loop_time = 10;
@@ -67,7 +67,7 @@ float gyroZfilt, gyroYfilt;
 
 float x_ang_fix, y_ang_fix;
 float x_target_ang, y_target_ang;
-#define ANGLE_FIXRATE 2
+#define ANGLE_FIXRATE 1
 
 bool vertical = false;  
 bool calibrating = false;
@@ -131,25 +131,28 @@ void loop() {
       gyroZfilt = alpha * gyroZ + (1 - alpha) * gyroZfilt;
       gyroYfilt = alpha * gyroY + (1 - alpha) * gyroYfilt;
 
-      // if(angleX < x_target_ang){
-      //   x_target_ang += ANGLE_FIXRATE*(loop_time/1000);
-      // }else{
-      //   x_target_ang -= ANGLE_FIXRATE*(loop_time/1000);
-      // }
-      // if(angleY < y_target_ang){
-      //   y_target_ang += ANGLE_FIXRATE*(loop_time/1000);
-      // }else{
-      //   y_target_ang -= ANGLE_FIXRATE*(loop_time/1000);
-      // }
+      if(angleX < x_target_ang){
+        x_target_ang += ANGLE_FIXRATE*(loop_time/1000);
+      }else{
+        x_target_ang -= ANGLE_FIXRATE*(loop_time/1000);
+      }
+      if(angleY < y_target_ang){
+        y_target_ang += ANGLE_FIXRATE*(loop_time/1000);
+      }else{
+        y_target_ang -= ANGLE_FIXRATE*(loop_time/1000);
+      }
 
-      // if(x_target_ang >= 5) x_target_ang = 5;
-      // else if (x_target_ang <= -5) x_target_ang = -5;
-      // if(y_target_ang >= 5) y_target_ang = 5;
-      // else if(y_target_ang <= -5) y_target_ang = -5;
+      float maxPoint = 0.5;
+      if(x_target_ang <= maxPoint)  x_target_ang = maxPoint;
+      else                          x_target_ang = -maxPoint;
+      if(y_target_ang <= maxPoint)  y_target_ang = maxPoint;
+      else                          y_target_ang = -maxPoint;
 
 
       pwm_X = constrain(K1 * angleX + K2 * gyroZfilt + K3 * -motor_speed_pwmX, -255, 255); 
       pwm_Y = constrain(K1 * angleY + K2 * gyroYfilt + K3 * -motor_speed_pwmY, -255, 255); 
+      // pwm_X = constrain(K1 * x_target_ang + K2 * gyroZfilt + K3 * -motor_speed_pwmX, -255, 255); 
+      // pwm_Y = constrain(K1 * y_target_ang + K2 * gyroYfilt + K3 * -motor_speed_pwmY, -255, 255); 
 
       // Serial.print("inloop"); 
       // Serial.print("In Loop | angle_X:,"); Serial.print(angleX); Serial.print(" angle_Y: "); Serial.print(angleY);
