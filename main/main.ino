@@ -18,7 +18,7 @@
 #define VBAT          A7
 
 float K1 = 300;
-float K2 = 90;
+float K2 = 60;
 float K3 = 0.01;
 
 float loop_time = 10;
